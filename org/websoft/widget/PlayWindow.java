@@ -166,6 +166,10 @@ public class PlayWindow extends JFrame
 
 			public void actionPerformed(ActionEvent e) {
 				playlistThread.pause();   //播放暂停
+				if(!playlistThread.isAlive()) {
+					playlistThread.startPlay(listPane.getSelectedIndex());
+					startPlaylistThread();
+				}
 			}
 		});
 		
