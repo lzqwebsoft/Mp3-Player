@@ -328,8 +328,8 @@ public final class Header {
 			idx += 2; // CRC word
 		framecounter++;
 
-		if(skipBytes > 0)
-			System.out.printf("frame# %d, skip bytes: %d\n",framecounter, skipBytes);
+//		if(skipBytes > 0)
+//			System.out.printf("frame# %d, skip bytes: %d\n",framecounter, skipBytes);
 
 		return true;
 	}

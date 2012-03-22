@@ -57,7 +57,7 @@ public class ControllePane extends JPanel {
 	
 	//创建一个按钮
 	public JButton createJButton(String txt, String iconPath) {
-		Icon icon = new ImageIcon(getClass().getResource("../resources/images/button.png"));
+		Icon icon = new ImageIcon(getClass().getResource("/org/websoft/resources/images/button.png"));
 		JButton button = new JButton("");
 		button.setIcon(icon);
 		button.setToolTipText(txt);

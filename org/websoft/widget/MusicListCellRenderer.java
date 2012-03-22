@@ -53,7 +53,7 @@ public class MusicListCellRenderer extends JPanel implements ListCellRenderer {
 		g.setColor(new Color(250, 255, 100));
 		g.fillRect(0, 0, 30, 20);
 		g.setColor(Color.BLACK);
-		g.drawString(String.valueOf(currentIndex), 10, 13);
+		g.drawString(String.valueOf(currentIndex), 5, 13);
 		g.drawString(musicInfo, 40, 13);
 	}
 

@@ -4,8 +4,10 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -19,6 +21,8 @@ import jmp123.gui.PlayListItem;
 
 @SuppressWarnings("serial")
 public class ListPane extends JPanel {
+	public static String listFile = "Mp3List.m3u";  //保存的列表文件
+	
 	private JList list;
 	private DefaultListModel dataListModel;
 	private int curIndex = -1; //当前正在播放的文件
@@ -94,7 +98,7 @@ public class ListPane extends JPanel {
 					br.close();
 			} catch (IOException e) {
 			}
-			System.out.println(info.toString());
+//			System.out.println(info.toString());
 		}
 	}
 	
@@ -227,5 +231,45 @@ public class ListPane extends JPanel {
 	 */
 	public JList getMusicList() {
 		return list;
+	}
+	
+	/**
+	 * 保存播放列表(*.m3u)于当前目录下的Mp3List.m3u文件
+	 * @return 保存是存成功。
+	 */
+	public synchronized boolean saveM3U() {
+		if (getCount() == 0) {
+			return false;
+		}
+		java.io.File listFile = new java.io.File(ListPane.listFile);
+		try {
+			if (!listFile.exists())
+				listFile.createNewFile();
+			StringBuilder content = new StringBuilder("#EXTM3U\r\n");
+			int i, j = getCount();
+			for (i = 0; i < j; i++) {
+				PlayListItem item = (PlayListItem) dataListModel.get(i);
+				//if(!item.available()) continue;
+
+				// title
+				content.append("#EXTINF:-1,");
+				content.append(item.toString());
+				content.append("\r\n");
+				
+				// path
+				content.append(item.getPath());
+				content.append("\r\n");
+			}
+			
+			// 以UTF-8编码格式保存至.m3u文件
+			FileOutputStream fos = new FileOutputStream(listFile);
+			Writer fw = new java.io.OutputStreamWriter(fos, "UTF-8");
+			fw.write(content.toString());
+			fw.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
 	}
 }

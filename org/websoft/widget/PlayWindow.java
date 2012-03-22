@@ -19,11 +19,16 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.io.File;
 import java.net.URL;
+import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -52,8 +57,21 @@ public class PlayWindow extends JFrame
 	private JPopupMenu popupMenu;    //弹出菜单
 	private JMenuItem removeItem;    //删除菜单项
 	private JMenuItem deleteItem;    //直接删除文件
+	private ResourceBundle resBundle; //语言资源包
+	private Locale currentLocale;     //当前环境
 	
 	public PlayWindow() {
+		currentLocale = Locale.getDefault();
+		if (currentLocale.getVariant().equals(Locale.CHINA.getVariant())) {
+			currentLocale = Locale.ENGLISH;
+		}
+		try {
+			resBundle = ResourceBundle.getBundle("org.websoft.resources.languages.language", currentLocale);
+		} catch (MissingResourceException e) {
+			e.printStackTrace();
+			System.exit(0);
+		}
+		
 		setSize(300, 500);
 		setLocationRelativeTo(null);
 		// 去掉标题栏
@@ -71,29 +89,30 @@ public class PlayWindow extends JFrame
 		//添加一个总的设置菜单
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.setBorder(BorderFactory.createEtchedBorder());
-		JMenu menu = new JMenu("Mp3 Player");
-		getMenuItem(menu, "Open file", 'O', KeyEvent.CTRL_DOWN_MASK, "openFile");
-		getMenuItem(menu, "Open folder", 'O', KeyEvent.CTRL_DOWN_MASK|KeyEvent.SHIFT_DOWN_MASK, "openFolder");
+		JMenu menu = new JMenu(resBundle.getString("menu.text"));
+		getMenuItem(menu, resBundle.getString("menu.openfile"), 'O', KeyEvent.CTRL_DOWN_MASK, "openFile");
+		getMenuItem(menu, resBundle.getString("menu.openfolder"), 'O', KeyEvent.CTRL_DOWN_MASK|KeyEvent.SHIFT_DOWN_MASK, "openFolder");
 		menu.addSeparator();
-		removeItem = getMenuItem(menu, "Remove", KeyEvent.VK_DELETE, 0, "removeSelectFile");
+		removeItem = getMenuItem(menu, resBundle.getString("menu.remove"), KeyEvent.VK_DELETE, 0, "removeSelectFile");
 		removeItem.setEnabled(false);
-		deleteItem = getMenuItem(menu, "Delete file", KeyEvent.VK_DELETE, KeyEvent.SHIFT_DOWN_MASK|KeyEvent.SHIFT_MASK, "deleteSelectFile");
+		deleteItem = getMenuItem(menu, resBundle.getString("menu.delete"), KeyEvent.VK_DELETE, KeyEvent.SHIFT_DOWN_MASK|KeyEvent.SHIFT_MASK, "deleteSelectFile");
 		deleteItem.setEnabled(false);
 		menu.addSeparator();
-		getMenuItem(menu, "Language", 'L', KeyEvent.CTRL_DOWN_MASK, "setLanguage");
-		getMenuItem(menu, "About", 'A', KeyEvent.CTRL_DOWN_MASK, "about");
+//		menu.add(createLanguageMenu(new String[]{resBundle.getString("menu.language.chinese"),
+//				resBundle.getString("menu.language.english")}, 0));
+		getMenuItem(menu, resBundle.getString("menu.about"), 'A', KeyEvent.CTRL_DOWN_MASK, "about");
 		menu.addSeparator();
-		getMenuItem(menu, "Exit", 'E', KeyEvent.CTRL_DOWN_MASK, "exitSystem");
+		getMenuItem(menu, resBundle.getString("menu.exit"), 'E', KeyEvent.CTRL_DOWN_MASK, "exitSystem");
 		menuBar.add(menu);
 		topPanel.add(menuBar);
 		menuBar.setBounds(0, 0, 75, 25);
 		
 		//添加最小化和关闭按钮
-		JButton minButton = getJButton("Minimize", "toMinimize");
+		JButton minButton = getJButton(resBundle.getString("button.min"), "toMinimize");
 		topPanel.add(minButton);
 		minButton.setBounds(getWidth()-50, 5, 20, 20);
 		
-		JButton closeButton = getJButton("Close", "exitSystem");
+		JButton closeButton = getJButton(resBundle.getString("button.close"), "exitSystem");
 		topPanel.add(closeButton);
 		closeButton.setBounds(getWidth()-25, 5, 20, 20);
 		
@@ -190,22 +209,22 @@ public class PlayWindow extends JFrame
 		bottomPane.setBorder(BorderFactory.createEmptyBorder());
 		bottomPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		//过滤,播放模式，添加
-		JButton filterBtn = getJButton("Filter", "filterMusic");
-		bottomPane.add(filterBtn);
+//		JButton filterBtn = getJButton("Filter", "filterMusic");
+//		bottomPane.add(filterBtn);
 		JMenuBar bottomBar = new JMenuBar();
 		bottomBar.setOpaque(false);
 		bottomBar.setBorder(BorderFactory.createEmptyBorder());
-		JMenu modeMenu = getJMenu("Play Mode");
+		JMenu modeMenu = getJMenu(resBundle.getString("menu.mode"));
 		
-		String[] itemContents = {"play one", "play list", "play random"};
+		String[] itemContents = {resBundle.getString("menu.mode.one"), resBundle.getString("menu.mode.list"), resBundle.getString("menu.mode.random")};
 		int[] keycodes = {'1', '2', '3'};
 		initPlayModeMenu(modeMenu, itemContents, keycodes);
 
 		modeMenu.setMenuLocation(bottomBar.getX(), bottomBar.getY()-68);
 		bottomBar.add(modeMenu);
-		JMenu addMenu = getJMenu("Add file/folder");
-		getMenuItem(addMenu, "Add file", 'O', KeyEvent.CTRL_DOWN_MASK, "openFile");
-		getMenuItem(addMenu, "Add floder", 'O', KeyEvent.CTRL_DOWN_MASK|KeyEvent.SHIFT_DOWN_MASK, "openFolder");
+		JMenu addMenu = getJMenu(resBundle.getString("menu.add"));
+		getMenuItem(addMenu, resBundle.getString("menu.openfile"), 'O', KeyEvent.CTRL_DOWN_MASK, "openFile");
+		getMenuItem(addMenu, resBundle.getString("menu.openfolder"), 'O', KeyEvent.CTRL_DOWN_MASK|KeyEvent.SHIFT_DOWN_MASK, "openFolder");
 		addMenu.setMenuLocation(bottomBar.getX(), bottomBar.getY() - 47);
 		bottomBar.add(addMenu);
 		bottomPane.add(bottomBar);
@@ -214,6 +233,13 @@ public class PlayWindow extends JFrame
 		//========================================
 		this.setContentPane(rootPane);
 		addMoveWindowAttribute(topPanel);
+		
+		// 如果存在列表文件则将其打开
+		File listFile = new File(ListPane.listFile);
+		if(listFile.exists()) {
+			listPane.openM3U(listFile.getAbsolutePath());
+			startPlaylistThread();
+		}
 		
 		setVisible(true);
 	}
@@ -246,7 +272,7 @@ public class PlayWindow extends JFrame
 	public void initializeTray() {
 		if(SystemTray.isSupported()) {
 			SystemTray tray = SystemTray.getSystemTray();
-			URL imageUrl = getClass().getResource("../resources/images/trayIcon.png");
+			URL imageUrl = getClass().getResource("/org/websoft/resources/images/trayIcon.png");
 			Image image = Toolkit.getDefaultToolkit().getImage(imageUrl);
 			
 			PopupMenu popup = new PopupMenu();
@@ -280,7 +306,7 @@ public class PlayWindow extends JFrame
 	//添加一个菜单
 	private JMenu getJMenu(String hit) {
 		JMenu menu = new JMenu();
-		Icon minIcon = new ImageIcon(this.getClass().getResource("../resources/images/min.png"));
+		Icon minIcon = new ImageIcon(getClass().getResource("/org/websoft/resources/images/min.png"));
 		menu.setIcon(minIcon);
 		menu.setToolTipText(hit);
 		menu.setOpaque(false);
@@ -332,10 +358,10 @@ public class PlayWindow extends JFrame
 	// 初始化弹出菜单
 	private JPopupMenu initPopupMenu() {
 		if(popupMenu == null) {
-			popupMenu = new JPopupMenu("Mp3 Player");
-			JMenuItem item = new JMenuItem("Remove");
-			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0, true));
-			item.addActionListener(new ActionListener() {
+			popupMenu = new JPopupMenu();
+			JMenuItem remove = new JMenuItem(resBundle.getString("menu.remove"));
+			remove.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0, true));
+			remove.addActionListener(new ActionListener() {
 				
 				@Override
 				// 删除播放列表中的歌曲
@@ -344,13 +370,36 @@ public class PlayWindow extends JFrame
 				}
 				
 			});
-			popupMenu.add(item);
+			JMenuItem delete = new JMenuItem(resBundle.getString("menu.delete"));
+			delete.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, KeyEvent.SHIFT_DOWN_MASK, true));
+			delete.addActionListener(new ActionListener() {
+				// 删除文件
+				public void actionPerformed(ActionEvent e) {
+					deleteSelectFile();
+				}
+			});
+			JMenuItem openContain = new JMenuItem(resBundle.getString("menu.openContain"));
+			openContain.setAccelerator(KeyStroke.getKeyStroke('O', KeyEvent.SHIFT_DOWN_MASK|KeyEvent.ALT_DOWN_MASK, true));
+			openContain.addActionListener(new ActionListener() {
+				// 打开所在文件
+				public void actionPerformed(ActionEvent e) {
+					openContainFolder();
+				}
+			});
+			popupMenu.add(remove);
+			popupMenu.add(delete);
+			popupMenu.addSeparator();
+			popupMenu.add(openContain);
 		}
 		Component[] comps = popupMenu.getComponents();
 		if(listPane.getSelectedIndex()!=-1&&listPane.getCount()!=0) {
 			comps[0].setEnabled(true);
+			comps[1].setEnabled(true);
+			comps[3].setEnabled(true);
 		} else {
 			comps[0].setEnabled(false);
+			comps[1].setEnabled(false);
+			comps[3].setEnabled(false);
 		}
 		
 		return popupMenu;
@@ -360,7 +409,7 @@ public class PlayWindow extends JFrame
 	//得到一个按钮
 	private JButton getJButton(String hit, final String method) {
 		JButton button = new JButton();
-		Icon closeIcon = new ImageIcon(this.getClass().getResource("../resources/images/min.png"));
+		Icon closeIcon = new ImageIcon(this.getClass().getResource("/org/websoft/resources/images/min.png"));
 		button.setToolTipText(hit);
 		button.setIcon(closeIcon);
 		button.setOpaque(false);
@@ -377,6 +426,23 @@ public class PlayWindow extends JFrame
 			}
 		});
 		return button;
+	}
+	
+	// 添加选择语言菜单
+	public JMenu createLanguageMenu(String[] languages, int selectedIndex) {
+		JMenu lagMenu = new JMenu(resBundle.getString("menu.language"));
+		
+		ButtonGroup btnGp = new ButtonGroup();
+		for(int i=0; i<languages.length; i++) {
+			JCheckBoxMenuItem item = new JCheckBoxMenuItem(languages[i]);
+			btnGp.add(item);
+			lagMenu.add(item);
+			
+			if (i == selectedIndex) {
+				item.setSelected(true);
+			}
+		}
+		return lagMenu;
 	}
 	
 	//开始播放线程
@@ -402,6 +468,9 @@ public class PlayWindow extends JFrame
 	
 	//退出系统
 	public void exitSystem() {
+		// 自动的保存播放列表
+		listPane.saveM3U();
+		
 		System.exit(0);
 	}
 	
@@ -449,7 +518,7 @@ public class PlayWindow extends JFrame
 	// 打开文件夹
 	public void openFolder() {
 		JFileChooser jfc = new JFileChooser();
-		jfc.setMultiSelectionEnabled(true);
+		jfc.setMultiSelectionEnabled(false);
 		
 		jfc.removeChoosableFileFilter(jfc.getChoosableFileFilters()[0]); 
 		// 仅文件夹
@@ -489,7 +558,7 @@ public class PlayWindow extends JFrame
 		if(playlistThread!=null&&listPane.getCount() != 0) {
 			String filename = listPane.getPlayListItem(listPane.getSelectedIndex()).toString();
 			int option = JOptionPane.showConfirmDialog(this,
-					"Are you sure to delete '"+filename+"' from disk?", "Delete", JOptionPane.YES_NO_OPTION);
+					"Are you sure to delete '"+filename+"' from disk?", resBundle.getString("window.delete"), JOptionPane.YES_NO_OPTION);
 			if(option == JOptionPane.YES_OPTION) {
 				playlistThread.deleteSelectedItem();
 				if(listPane.getCount()==0) {
@@ -500,10 +569,36 @@ public class PlayWindow extends JFrame
 		}
 	}
 	
+	// 打开文件所在目录
+	public void openContainFolder() {
+		if(listPane.getCount() != 0) {
+			String path = listPane.getPlayListItem(listPane.getSelectedIndex()).getPath();
+			File file = new File(path); 
+			
+			if (file.exists()) {
+				JFileChooser jfc = new JFileChooser();
+				jfc.setMultiSelectionEnabled(true);
+				jfc.removeChoosableFileFilter(jfc.getChoosableFileFilters()[0]); 
+				FileNameExtensionFilter filterMP3 = new FileNameExtensionFilter("Mp3 files(*.mp3)", "mp3");
+				jfc.addChoosableFileFilter(filterMP3);
+				
+				jfc.addChoosableFileFilter(new FileNameExtensionFilter("VCD,DVD files (*.dat,*.vob)", "dat", "vob"));
+				
+				FileNameExtensionFilter filterM3u = new FileNameExtensionFilter("Music list(*.m3u)", "m3u");
+				jfc.addChoosableFileFilter(filterM3u);
+				
+				jfc.setFileFilter(filterMP3);
+				jfc.setCurrentDirectory(file.getParentFile());
+				jfc.setSelectedFile(file);
+				jfc.showOpenDialog(this);
+			}
+		}
+	}
+	
 	// 关于
 	public void about() {
-		JOptionPane.showMessageDialog(this, "Mp3 Player 测试版 \r\n解码器基于： jmp123(http://jmp123.sourceforge.net)",
-				"About", JOptionPane.INFORMATION_MESSAGE);
+		JOptionPane.showMessageDialog(this, resBundle.getString("window.about.content"),
+				resBundle.getString("window.about"), JOptionPane.INFORMATION_MESSAGE);
 	}
 	
 	public static void main(String[] args) {
