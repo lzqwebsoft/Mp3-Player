@@ -1,0 +1,1 @@
+这是一个java mp3播放器，解码器基于jmp123(http://jmp123.sourceforge.net)。本播放器增加了定点播放，增减音量等功能。
