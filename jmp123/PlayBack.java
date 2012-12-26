@@ -419,11 +419,11 @@ public class PlayBack {
 		off = header.offset();
 	}
 	
-	public void setVloume(float vloume) {
-		currentVolume = vloume;
+	public void setVolume(float volume) {
+		currentVolume = volume;
 	}
 	
-	public float getVloume() {
+	public float getVolume() {
 		return currentVolume;
 	}
 }
